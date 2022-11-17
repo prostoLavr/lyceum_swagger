@@ -9,10 +9,14 @@ pipeline {
         timestamps()
     }
     stages {
+        stage("Build images") {
+            steps {
+                sh 'docker build -t my-swagger-ui .'
+            }
+        }
+
         stage("Run images") {
             steps {
-                sh 'ls'
-                sh 'pwd'
                 sh 'docker-compose up -d'
             }
         }

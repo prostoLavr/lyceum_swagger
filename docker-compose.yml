@@ -2,15 +2,13 @@ version: "3"
 
 services:
   swagger:
-    image: swaggerapi/swagger-ui
+    image: my-swagger-ui
     container_name: swagger_ui
     restart: always
     networks:
       - "front_net"
-    volumes:
-      - "./doc:/usr/share/nginx/html/doc"
     environment:
-      API_URL: doc/openapi.yaml
+      API_URL: /doc/openapi.yaml
 
 networks:
   front_net:
