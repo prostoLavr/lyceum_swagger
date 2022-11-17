@@ -11,8 +11,6 @@ services:
       - "./doc:/usr/share/nginx/html/doc"
     environment:
       API_URL: doc/openapi.yaml
-    ports:
-      - "80:8080"
 
 networks:
   front_net:
