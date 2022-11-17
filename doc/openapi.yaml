@@ -1,0 +1,144 @@
+openapi: 3.0.2
+info:
+  title: Asynchronus Timetable API
+  version: "0.0.1dev1"
+
+servers:
+  - url: https://async-api.lava-land.ru
+    description: Stable
+  - url: https://test-async-api.lava-land.ru
+    description: Unstable
+  
+paths:
+  /school:
+    get:
+      description: Get all schools
+      responses:
+        "200":
+          description: Array of schools
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/School"
+  /school{school_id}/class:
+    get:
+      description: Get all classes in school
+      parameters:
+          - in: path
+            name: school_id
+            required: true
+            schema:
+              type: integer
+              minimum: 1
+            description: The school ID
+      responses:
+        "200":
+          description: Array of schools
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolWithClasses'
+  /school{school_id}/lesson:
+    get:
+      description: Get all lesson for all classes in school
+      parameters:
+          - in: path
+            name: school_id
+            required: true
+            schema:
+              type: integer
+              minimum: 1
+            description: The school ID
+      responses:
+        "200":
+          description: Array of schools
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolWithClassesWithLessons'
+  /class/{class_id}/lesson:
+    get:
+      description: Get all lessons in class
+      parameters:
+          - in: path
+            name: class_id
+            required: true
+            schema:
+              type: integer
+              minimum: 1
+            description: The school ID
+      responses:
+        "200":
+          description: Array of schools
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassWithLessons'
+  
+components:
+  schemas:
+    SchoolWithClasses:
+      properties:
+        school_id:
+          type: integer
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Class'
+    SchoolWithClassesWithLessons:
+      properties:
+        school_id:
+          type: integer
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassWithLessons'
+    ClassWithLessons:
+      properties:
+        class_id:
+          type: integer
+        number:
+          type: integer
+        letter:
+          type: string
+        lessons:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lesson'
+    Class:
+      properties:
+        class_id:
+          type: integer
+        number:
+          type: integer
+        letter:
+          type: string
+    Lesson:
+      properties:
+        name: 
+          type: string
+        weekday:
+          type: integer
+        week:
+          type: integer
+        start_hour:
+          type: integer
+        start_minute:
+          type: integer 
+        end_hour:
+          type: integer
+        end_minute:
+          type: integer
+        teacher_name:
+          type: string
+    School:
+      properties:
+        school_id:
+          type: integer
+        name:
+          type: string
+        address:
+          type: string
+        
