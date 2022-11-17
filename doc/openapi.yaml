@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: Асинхронная версия API расписания для проекта Лицей в Цифре
-  version: "0.0.1dev1"
+  version: "0.0.1dev2"
 
   description: '<div>
   <a href="https://github.com/prostoLavr/async_lyceum_api.git">Репозиторий проекта</a>
@@ -36,8 +36,38 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/School"
+    post:
+      description: "Создать новую школу"
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+          description: "Название школы"
+        - in: query
+          name: address
+          required: true
+          schema:
+            type: string
+          description: "Адрес школы"
+      responses:
+        "200":
+          description: "Новая школа создана" 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+        "409":
+          description: "Такая школа уже существует"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/School"
+        "418":
+          description: "Сервер отказывается варить кофе в чайнике (пропущенные или поля теля запроса)"
 
-  /school{school_id}/class:
+  /school/{school_id}/class:
     get:
       description: "Список классов для школы"
       parameters:
@@ -47,7 +77,7 @@ paths:
             schema:
               type: integer
               minimum: 1
-            description: The school ID
+            description: school_id ID
       responses:
         "200":
           description: "Успешно" 
@@ -55,8 +85,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SchoolWithClasses'
+        "404":
+          description: "Школа с таким school_id не существует"
+    post:
+      description: "Создать новый класс"
+      parameters:
+          - in: path
+            name: school_id
+            required: true
+            schema:
+              type: integer
+              minimum: 1
+            description: "ID школы"
+      responses:
+        "200":
+          description: "Новый класс создан" 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+        "409":
+          description: "Такой класс уже существует"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Class"
+        "418":
+          description: "Сервер отказывается варить кофе в чайнике (пропущенные или поля теля запроса)"
 
-  /school{school_id}/lesson:
+  /school/{school_id}/lesson:
     get:
       description: "Список уроков разбитый по классам для всей школы"
       parameters:
@@ -66,7 +123,7 @@ paths:
             schema:
               type: integer
               minimum: 1
-            description: The school ID
+            description: "ID школы"
       responses:
         "200":
           description: "Успешно" 
@@ -74,18 +131,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SchoolWithClassesWithLessons'
+        "404":
+          description: "Школа с таким school_id не существует"
 
   /class/{class_id}/lesson:
     get:
-      description: Get all lessons in class
+      description: "Получить список уроков для класса"
       parameters:
-          - in: path
-            name: class_id
-            required: true
-            schema:
-              type: integer
-              minimum: 1
-            description: The school ID
+        - in: path
+          name: class_id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: "ID класса"
       responses:
         "200":
           description: "Успешно" 
@@ -93,7 +152,132 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ClassWithLessons'
-  
+        "404":
+          description: "Класс с таким class_id не существует"
+    post:
+      description: "Создать новый урок"
+      parameters:
+        - in: path
+          name: class_id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: class ID
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: teacher_id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: "ID учителя проводящего урок"
+        - in: query
+          name: school_id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: "ID Заведения, в котором проводится урок"
+        - in: query
+          name: weekday
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 6
+        - in: query
+          name: week
+          schema:
+            type: integer
+            nullable: true
+          description: "Номер цикла недели (null - каждую неделю)"
+        - in: query
+          name: start_hour
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 23
+          description: "Час, когда налачинается урок"
+        - in: query
+          name: start_minute
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 59
+          description: "Минута, когда налачинается урок"
+        - in: query
+          name: end_hour
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 23
+          description: "Час, когда заканчивается урок"
+        - in: query
+          name: end_minute
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 59
+          description: "Минута, когда заканчивается урок"
+      responses:
+        "200":
+          description: "Новый класс создан" 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+        "409":
+          description: "Такой класс уже существует"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lesson"
+        "418":
+          description: "Сервер отказывается варить кофе в чайнике (пропущенные или поля теля запроса)"
+  /school/{school_id}/teacher:
+    get:
+      description: "Список учителей в школе"
+      parameters:
+        - in: path
+          name: school_id
+          required: true
+          schema:
+            type: integer
+          description: "ID Школы"
+      responses:
+        "200":
+          description: "Успешно" 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SchoolWithTeachers"
+  /teacher:
+    post:
+      description: "Создать учителя в школе"
+      parameters:
+        - in: query
+          name: name
+          required: true
+          schema:
+            type: string
+          description: "Имя преподавателя"
+      responses:
+        "200":
+          description: "Успешно" 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+
 components:
   schemas:
 
@@ -105,7 +289,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Class'
-
+            
+    SchoolWithTeachers:
+      properties:
+        school_id:
+          type: integer
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Teacher'
+            
     SchoolWithClassesWithLessons:
       properties:
         school_id:
@@ -127,6 +320,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lesson'
+            
     Class:
       properties:
         class_id:
@@ -135,6 +329,7 @@ components:
           type: integer
         letter:
           type: string
+          
     Lesson:
       properties:
         name: 
@@ -153,6 +348,7 @@ components:
           type: integer
         teacher_name:
           type: string
+          
     School:
       properties:
         school_id:
@@ -161,4 +357,16 @@ components:
           type: string
         address:
           type: string
-        
+          
+    Teacher:
+      properties:
+        teacher_id:
+          type: integer
+        name:
+          type: string
+  
+    Error:
+      properties:
+        msg:
+          type: string
+ 
