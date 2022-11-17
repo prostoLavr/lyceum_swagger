@@ -11,6 +11,8 @@ pipeline {
     stages {
         stage("Run images") {
             steps {
+                sh 'ls'
+                sh 'pwd'
                 sh 'docker-compose up -d'
             }
         }
