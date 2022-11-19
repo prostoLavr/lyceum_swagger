@@ -1,7 +1,7 @@
 openapi: 3.0.2
 info:
   title: Асинхронная версия API расписания для проекта Лицей в Цифре
-  version: "0.0.1dev2"
+  version: "0.0.1dev1"
 
   description: '<div>
   <a href="https://github.com/prostoLavr/async_lyceum_api.git">Репозиторий проекта</a>
@@ -38,19 +38,14 @@ paths:
                   $ref: "#/components/schemas/School"
     post:
       description: "Создать новую школу"
-      parameters:
-        - in: query
-          name: name
-          required: true
-          schema:
-            type: string
-          description: "Название школы"
-        - in: query
-          name: address
-          required: true
-          schema:
-            type: string
-          description: "Адрес школы"
+      requestBody:
+        description: "Информация о учебном заведении"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSchool"
+              
       responses:
         "200":
           description: "Новая школа создана" 
@@ -97,6 +92,14 @@ paths:
               type: integer
               minimum: 1
             description: "ID школы"
+      requestBody:
+        description: "Информация о классе"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClass"
+
       responses:
         "200":
           description: "Новый класс создан" 
@@ -280,6 +283,14 @@ paths:
 
 components:
   schemas:
+    CreateSchool:
+      properties:
+        name:
+          description: "Название учебного заведения"
+          type: string
+        address:
+          description: "Адрес учебного заведения"
+          type: string
 
     SchoolWithClasses:
       properties:
@@ -289,7 +300,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Class'
-            
+
     SchoolWithTeachers:
       properties:
         school_id:
@@ -298,7 +309,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Teacher'
-            
+
     SchoolWithClassesWithLessons:
       properties:
         school_id:
@@ -308,56 +319,84 @@ components:
           items:
             $ref: '#/components/schemas/ClassWithLessons'
 
-    ClassWithLessons:
-      properties:
-        class_id:
-          type: integer
-        number:
-          type: integer
-        letter:
-          type: string
-        lessons:
-          type: array
-          items:
-            $ref: '#/components/schemas/Lesson'
-            
     Class:
       properties:
         class_id:
           type: integer
         number:
+          description: "Номер класса (курса)"
           type: integer
         letter:
+          description: "Буквенное обозначение класса"
           type: string
-          
+  
+    CreateClass:
+      properties:
+        number:
+          description: "Номер класса (курса)"
+          type: string
+        letter:
+          description: "Буквенное обозначение класса"
+          type: string
+
+    ClassWithLessons:
+      properties:
+        class_id:
+          type: integer
+        number:
+          description: "Номер класса (курса)"
+          type: integer
+        letter:
+          description: "Буквенное обозначение класса"
+          type: string
+        lessons:
+          description: "Список уроков"
+          type: array
+          items:
+            $ref: '#/components/schemas/Lesson'
+
     Lesson:
       properties:
-        name: 
+        name:
+          description: 'Название предмета'
           type: string
         weekday:
+          description: 'День недели'
           type: integer
+          minimum: 0
+          maximum: 6
         week:
+          description: 'День недели'
           type: integer
+          minimum: 0
+          maximum: 2
         start_hour:
+          description: 'Час, когда начинается занятие'
           type: integer
         start_minute:
+          description: 'Минута, когда начинается занятие'
           type: integer 
         end_hour:
+          description: 'Час, когда заканчивается занятие'
           type: integer
         end_minute:
+          description: 'Минута, когда заканчивается занятие'
           type: integer
         teacher_name:
+          description: 'Имя учителя, ведущего занятие'
           type: string
-          
+
     School:
       properties:
         school_id:
           type: integer
         name:
+          description: 'Название учебного заведения'
           type: string
         address:
+          description: 'Адрес заведения'
           type: string
-          
+
     Teacher:
       properties:
         teacher_id:
